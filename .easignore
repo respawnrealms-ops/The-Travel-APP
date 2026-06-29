@@ -1,0 +1,17 @@
+.gradle_home/
+node_modules/
+.git/
+android/
+.idea/
+.vscode/
+.claude/
+dist/
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+.env*.local
+*.tsbuildinfo

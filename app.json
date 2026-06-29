@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "travel-companion",
+    "name": "Travel Companion AI",
     "slug": "travel-companion",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,11 +8,13 @@
     "scheme": "travelcompanion",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.travelcompanion.app",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+      "package": "com.travelcompanion.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F62FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -28,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0F62FE",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76

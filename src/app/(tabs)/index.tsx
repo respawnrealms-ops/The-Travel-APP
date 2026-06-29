@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, Pressable, Platform, useColorScheme, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Pressable, Platform, useColorScheme, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeInDown, Layout } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { database } from '@/services/database';
 import { useHaptics } from '@/hooks/useHaptics';
@@ -45,8 +45,15 @@ export default function HomeScreen() {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isCompact = width < 360;
 
-  const [greeting, setGreeting] = useState('');
+  const [greeting] = useState(() => {
+    const hours = new Date().getHours();
+    if (hours < 12) return 'Good morning, traveler';
+    if (hours < 18) return 'Good afternoon, traveler';
+    return 'Good evening, traveler';
+  });
   const [tipIndex, setTipIndex] = useState(0);
 
   const tips = [
@@ -57,11 +64,6 @@ export default function HomeScreen() {
   ];
 
   useEffect(() => {
-    const hours = new Date().getHours();
-    if (hours < 12) setGreeting('Good morning, traveler 🌅');
-    else if (hours < 18) setGreeting('Good afternoon, traveler ☀️');
-    else setGreeting('Good evening, traveler 🌌');
-
     // Load default settings if unset
     if (database.getString('trips') === undefined) {
       database.setString('trips', JSON.stringify(mockTrips));
@@ -79,7 +81,16 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#050B14' : '#F4F9FF' }]}>
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16 }]}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 12) + 12,
+            paddingHorizontal: isCompact ? 14 : 20,
+            paddingBottom: Math.max(insets.bottom + 128, 148),
+            gap: isCompact ? 20 : 28,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header Greeting */}
@@ -102,23 +113,28 @@ export default function HomeScreen() {
 
         {/* Main Banner / Trip Countdown */}
         <Animated.View entering={FadeInDown.duration(800).delay(200)}>
-          <PremiumCard onPress={() => router.push({ pathname: '/trip-details', params: { id: nextTrip.id } })}>
+          <PremiumCard
+            onPress={() => router.push({ pathname: '/trip-details', params: { id: nextTrip.id } })}
+            style={[styles.bannerCard, isCompact && styles.bannerCardCompact]}
+          >
             <LinearGradient
               colors={nextTrip.imageColor as [string, string]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.bannerGradient}
+              style={[styles.bannerGradient, isCompact && styles.bannerGradientCompact]}
             >
               <View style={styles.bannerContent}>
                 <View style={styles.bannerTextContainer}>
                   <Text style={styles.countdownTitle}>Upcoming Trip</Text>
-                  <Text style={styles.bannerDestination}>{nextTrip.destination}, {nextTrip.country}</Text>
+                  <Text style={[styles.bannerDestination, isCompact && styles.bannerDestinationCompact]}>
+                    {nextTrip.destination}, {nextTrip.country}
+                  </Text>
                   <Text style={styles.bannerDates}>{nextTrip.dates}</Text>
                 </View>
                 
                 {/* Circular Indicator Mockup */}
-                <View style={styles.countdownCircle}>
-                  <Text style={styles.countdownDays}>{nextTrip.daysToDeparture}</Text>
+                <View style={[styles.countdownCircle, isCompact && styles.countdownCircleCompact]}>
+                  <Text style={[styles.countdownDays, isCompact && styles.countdownDaysCompact]}>{nextTrip.daysToDeparture}</Text>
                   <Text style={styles.countdownLabel}>days left</Text>
                 </View>
               </View>
@@ -140,7 +156,7 @@ export default function HomeScreen() {
           <View style={styles.grid}>
             <Pressable
               onPress={() => handleQuickAction('/weather')}
-              style={[styles.gridCell, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
+              style={[styles.gridCell, isCompact && styles.gridCellCompact, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
             >
               <Ionicons name="thunderstorm-outline" size={24} color="#00C6FF" />
               <Text style={[styles.gridCellText, { color: isDark ? '#ffffff' : '#333' }]}>Weather</Text>
@@ -148,7 +164,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => handleQuickAction('/currency')}
-              style={[styles.gridCell, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
+              style={[styles.gridCell, isCompact && styles.gridCellCompact, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
             >
               <Ionicons name="cash-outline" size={24} color="#0F62FE" />
               <Text style={[styles.gridCellText, { color: isDark ? '#ffffff' : '#333' }]}>Currency</Text>
@@ -156,7 +172,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => handleQuickAction('/documents')}
-              style={[styles.gridCell, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
+              style={[styles.gridCell, isCompact && styles.gridCellCompact, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
             >
               <Ionicons name="lock-closed-outline" size={24} color="#10B981" />
               <Text style={[styles.gridCellText, { color: isDark ? '#ffffff' : '#333' }]}>Vault</Text>
@@ -164,7 +180,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => handleQuickAction('/premium')}
-              style={[styles.gridCell, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
+              style={[styles.gridCell, isCompact && styles.gridCellCompact, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}
             >
               <Ionicons name="diamond-outline" size={24} color="#F59E0B" />
               <Text style={[styles.gridCellText, { color: isDark ? '#ffffff' : '#333' }]}>Premium</Text>
@@ -247,7 +263,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 130,
+    paddingBottom: 148,
     gap: 28,
     width: '100%',
   },
@@ -273,11 +289,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  bannerCard: {
+    height: 198,
+  },
+  bannerCardCompact: {
+    height: 178,
+  },
   bannerGradient: {
+    flex: 1,
     borderRadius: 28,
     padding: 24,
     gap: 20,
     position: 'relative',
+    justifyContent: 'space-between',
+  },
+  bannerGradientCompact: {
+    padding: 18,
+    gap: 14,
   },
   bannerContent: {
     flexDirection: 'row',
@@ -299,6 +327,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 24,
     fontWeight: '800',
+    flexShrink: 1,
+  },
+  bannerDestinationCompact: {
+    fontSize: 20,
   },
   bannerDates: {
     color: 'rgba(255, 255, 255, 0.85)',
@@ -315,10 +347,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  countdownCircleCompact: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
   countdownDays: {
     color: '#ffffff',
     fontSize: 22,
     fontWeight: '800',
+  },
+  countdownDaysCompact: {
+    fontSize: 18,
   },
   countdownLabel: {
     color: '#ffffff',
@@ -339,6 +379,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 12,
     fontWeight: '600',
+    flex: 1,
   },
   sectionContainer: {
     gap: 14,
@@ -350,6 +391,7 @@ const styles = StyleSheet.create({
   },
   grid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   gridCell: {
@@ -361,6 +403,9 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(255,255,255,0.05)',
+  },
+  gridCellCompact: {
+    flexBasis: '47%',
   },
   gridCellText: {
     fontSize: 12,
@@ -441,7 +486,7 @@ const styles = StyleSheet.create({
   floatingButtonContainer: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 104 : 96,
-    right: 20,
+    right: 16,
   },
   floatingButton: {
     width: 56,

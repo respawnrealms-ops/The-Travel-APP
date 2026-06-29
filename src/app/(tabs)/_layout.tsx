@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { View, StyleSheet, Pressable, Text, Platform, useColorScheme } from 'react-native';
+import { View, StyleSheet, Pressable, Text, Platform, useColorScheme, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -61,8 +61,11 @@ function CustomTabBar({ state, descriptors, navigation, themeColors }: any) {
   const haptics = useHaptics();
   const insets = useSafeAreaInsets();
   const activeIndex = state.index;
+  const { width } = useWindowDimensions();
 
-  const tabWidth = 320 / 5;
+  const barWidth = Math.max(Math.min(width - 24, 360), 220);
+  const isCompact = barWidth < 300;
+  const tabWidth = barWidth / 5;
   const slideX = useSharedValue(activeIndex * tabWidth);
 
   React.useEffect(() => {
@@ -70,7 +73,7 @@ function CustomTabBar({ state, descriptors, navigation, themeColors }: any) {
       damping: 15,
       stiffness: 150,
     });
-  }, [activeIndex]);
+  }, [activeIndex, slideX, tabWidth]);
 
   const animatedIndicatorStyle = useAnimatedStyle(() => {
     return {
@@ -105,6 +108,11 @@ function CustomTabBar({ state, descriptors, navigation, themeColors }: any) {
         tint={isDark ? 'dark' : 'light'}
         style={[
           styles.blurContainer,
+          {
+            width: barWidth,
+            height: isCompact ? 58 : 64,
+            borderRadius: isCompact ? 29 : 32,
+          },
           Platform.OS === 'web' && ({
             backgroundColor: isDark ? 'rgba(33, 34, 37, 0.82)' : 'rgba(240, 240, 243, 0.88)',
             backdropFilter: 'blur(24px)',
@@ -117,7 +125,11 @@ function CustomTabBar({ state, descriptors, navigation, themeColors }: any) {
         <Animated.View
           style={[
             styles.activeIndicator,
-            { width: tabWidth - 12 },
+            {
+              width: Math.max(tabWidth - 12, 34),
+              height: isCompact ? 46 : 52,
+              borderRadius: isCompact ? 23 : 26,
+            },
             animatedIndicatorStyle,
           ]}
         />
@@ -153,10 +165,11 @@ function CustomTabBar({ state, descriptors, navigation, themeColors }: any) {
                 />
                 <Text
                   style={[
-                    styles.label,
-                    {
-                      color: isFocused ? '#0F62FE' : isDark ? '#B0B4BA' : '#60646C',
-                      fontWeight: isFocused ? '600' : '400',
+                  styles.label,
+                  isCompact && styles.labelCompact,
+                  {
+                    color: isFocused ? '#0F62FE' : isDark ? '#B0B4BA' : '#60646C',
+                    fontWeight: isFocused ? '600' : '400',
                     },
                   ]}
                 >
@@ -220,5 +233,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     marginTop: 1,
+  },
+  labelCompact: {
+    fontSize: 9,
   },
 });

@@ -96,7 +96,7 @@ export default function JournalScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Story wrapped trigger banner */}
-        <Animated.View entering={FadeInDown.duration(800)}>
+        <View>
           <PremiumCard onPress={() => { haptics.medium(); setIsStoryVisible(true); setStorySlide(0); }}>
             <LinearGradient
               colors={['#8E2DE2', '#4A00E0']}
@@ -117,10 +117,10 @@ export default function JournalScreen() {
               </View>
             </LinearGradient>
           </PremiumCard>
-        </Animated.View>
+        </View>
 
         {/* Mood Tracker Widget */}
-        <Animated.View entering={FadeInDown.duration(800).delay(100)}>
+        <View style={{ marginTop: 24 }}>
           <GlassView style={styles.moodCard} borderRadius={28}>
             <Text style={[styles.cardTitle, { color: isDark ? '#ffffff' : '#0F62FE' }]}>How is your mood today?</Text>
             <View style={styles.moodRow}>
@@ -142,10 +142,10 @@ export default function JournalScreen() {
               </Pressable>
             </View>
           </GlassView>
-        </Animated.View>
+        </View>
 
         {/* Add Entry Form */}
-        <Animated.View entering={FadeInDown.duration(800).delay(200)}>
+        <View style={{ marginTop: 24 }}>
           <GlassView style={styles.addCard} borderRadius={24}>
             <Text style={[styles.cardTitle, { color: isDark ? '#ffffff' : '#0F62FE' }]}>Log visited milestone</Text>
             <View style={styles.formRow}>
@@ -161,17 +161,15 @@ export default function JournalScreen() {
               </Pressable>
             </View>
           </GlassView>
-        </Animated.View>
+        </View>
 
         {/* Visited milestones timeline */}
         <View style={styles.timelineSection}>
           <Text style={[styles.sectionTitle, { color: isDark ? '#ffffff' : '#0F62FE' }]}>Travel Timeline</Text>
           <View style={styles.timelineList}>
             {entries.map((item, idx) => (
-              <Animated.View
+              <View
                 key={item.id}
-                entering={FadeInDown.duration(600).delay(250 + idx * 50)}
-                layout={Layout.springify()}
                 style={styles.timelineRow}
               >
                 <View style={styles.bulletCol}>
@@ -185,7 +183,7 @@ export default function JournalScreen() {
                   <Text style={[styles.itemTime, { color: isDark ? '#60646C' : '#90949C' }]}>{item.time}</Text>
                   <Text style={[styles.itemContent, { color: isDark ? '#ffffff' : '#000000' }]}>{item.content}</Text>
                 </View>
-              </Animated.View>
+              </View>
             ))}
           </View>
         </View>
